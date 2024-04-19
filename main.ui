@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1144</width>
+    <height>805</height>
+   </rect>
+  </property>
+  <property name="font">
+   <font>
+    <family>Nirmala UI</family>
+    <pointsize>11</pointsize>
+    <weight>50</weight>
+    <italic>false</italic>
+    <bold>false</bold>
+   </font>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: #151f2e;
+color: #FFFFFF;
+font: 11pt &quot;Nirmala UI&quot;;
+
+
+</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="font">
+    <font>
+     <family>Nirmala UI</family>
+     <pointsize>11</pointsize>
+     <weight>50</weight>
+     <italic>false</italic>
+     <bold>false</bold>
+    </font>
+   </property>
+   <property name="autoFillBackground">
+    <bool>false</bool>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <layout class="QHBoxLayout" name="main_layout" stretch="4,3,3">
+      <item>
+       <layout class="QVBoxLayout" name="first_layout" stretch="0,0">
+        <item>
+         <layout class="QVBoxLayout" name="account_table_layout">
+          <item>
+           <widget class="QTableWidget" name="account_table">
+            <property name="styleSheet">
+             <string notr="true">QTableWidget {
+	border: 3px solid #515f75;
+    border-radius: 10px;
+}
+</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="accout_button_layout">
+          <item>
+           <widget class="QPushButton" name="accout_button">
+            <property name="styleSheet">
+             <string notr="true">QPushButton {
+    background-color: #252e3d; 
+    border-radius: 6px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+</string>
+            </property>
+            <property name="text">
+             <string>Add Account</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="second_layout">
+        <item>
+         <layout class="QVBoxLayout" name="message_table_layout">
+          <item>
+           <widget class="QTableWidget" name="message_table">
+            <property name="styleSheet">
+             <string notr="true">QTableWidget {
+	border: 3px solid #515f75;
+    border-radius: 10px;
+}
+</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="message_button_layout">
+          <item>
+           <widget class="QPushButton" name="message_button">
+            <property name="styleSheet">
+             <string notr="true">QPushButton {
+    background-color: #252e3d; 
+    border-radius: 6px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+</string>
+            </property>
+            <property name="text">
+             <string>Add Message</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="third_layout" stretch="2,6,2">
+        <item>
+         <layout class="QVBoxLayout" name="login_layout">
+          <item>
+           <widget class="QLabel" name="login_label">
+            <property name="text">
+             <string>Login text</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="expires_label">
+            <property name="text">
+             <string>Expires text</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="account_label">
+            <property name="text">
+             <string>Account text</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="logout_button">
+            <property name="styleSheet">
+             <string notr="true">QPushButton {
+    background-color: #252e3d; 
+    border-radius: 6px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+</string>
+            </property>
+            <property name="text">
+             <string>Login</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="settings_layout">
+          <item>
+           <layout class="QGridLayout" name="settings_grid">
+            <item row="6" column="0">
+             <widget class="QLineEdit" name="react_chance_edit">
+              <property name="styleSheet">
+               <string notr="true">QLineEdit {
+    border: 1px solid #515f75;
+	border-radius: 6px;
+    padding: 5px;
+	background-color: #252e3d;
+}</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLineEdit" name="cooldown_edit">
+              <property name="styleSheet">
+               <string notr="true">QLineEdit {
+    border: 1px solid #515f75;
+	border-radius: 6px;
+    padding: 5px;
+	background-color: #252e3d;
+}</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
+             <widget class="QLineEdit" name="like_chance_edit">
+              <property name="styleSheet">
+               <string notr="true">QLineEdit {
+    border: 1px solid #515f75;
+	border-radius: 6px;
+    padding: 5px;
+	background-color: #252e3d;
+}</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLabel" name="my_retweets_label">
+              <property name="text">
+               <string>My retweets (1-20):</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QLabel" name="like_chance_label">
+              <property name="text">
+               <string>Like chance (%):</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="my_retweets_edit">
+              <property name="styleSheet">
+               <string notr="true">QLineEdit {
+    border: 1px solid #515f75;
+	border-radius: 6px;
+    padding: 5px;
+	background-color: #252e3d;
+}</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLineEdit" name="max_retweets_edit">
+              <property name="styleSheet">
+               <string notr="true">QLineEdit {
+    border: 1px solid #515f75;
+	border-radius: 6px;
+    padding: 5px;
+	background-color: #252e3d;
+}</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="max_tweet_label">
+              <property name="text">
+               <string>Max tweets:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0">
+             <widget class="QLabel" name="react_chance_label">
+              <property name="text">
+               <string>React chance (%):</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="1">
+             <widget class="QLabel" name="settings_change_label">
+              <property name="text">
+               <string>Settings: Normal</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="cooldown_label">
+              <property name="text">
+               <string>Cooldown (mins):</string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="1">
+             <widget class="QPushButton" name="pushButton">
+              <property name="styleSheet">
+               <string notr="true">QPushButton {
+    background-color: #252e3d; 
+    border-radius: 6px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+</string>
+              </property>
+              <property name="text">
+               <string>Change</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="status_layout">
+          <item>
+           <widget class="QLabel" name="status_lable">
+            <property name="text">
+             <string>Status text</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="statuts_buttons_layout">
+            <item>
+             <widget class="QPushButton" name="enable_button">
+              <property name="styleSheet">
+               <string notr="true">QPushButton {
+    background-color: #252e3d; 
+    border-radius: 6px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+</string>
+              </property>
+              <property name="text">
+               <string>Enable</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="disable_button">
+              <property name="styleSheet">
+               <string notr="true">QPushButton {
+    background-color: #252e3d; 
+    border-radius: 6px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+</string>
+              </property>
+              <property name="text">
+               <string>Disable</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
