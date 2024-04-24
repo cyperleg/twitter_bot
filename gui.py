@@ -1,16 +1,20 @@
 import sys
 from PyQt5 import uic
-from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget
+from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QTableWidgetItem, QCheckBox
 from PyQt5.QtCore import pyqtSignal
+from sqlalchemy.orm import Session
+from sqlalchemy import create_engine
+from database.database import Group, Retweet, Twitter_account, Attachment, User
+from sqlalchemy import select
 
 
 class MainApp(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.db = None  # data base
+        self.db = Session(create_engine(self.path_db))  # data base
         self.path_db: str = str()  # db path
         self.settings_change_flag: bool = False  # False - default, True - premium
-        self.login: str = str() # login name
+        self.login: str = str()  # login name
         self.initUI()
 
     def initUI(self):
@@ -126,6 +130,124 @@ class MainApp(QMainWindow):
             # request to db for changing all staff
             pass
 
+    def set_table(self):
+        # Set table of twitter accounts to the accounts table
+
+        def set_account_premium():
+            sender = self.sender()
+            check_box_id = int(sender.objectName()[18:])
+            account_item = self.db.execute(
+                select(Twitter_account).where(Twitter_account.id == check_box_id).scalar_one_or_none())
+
+            if account_item:
+                account_item.premium = sender.isChecked()
+                self.db.commit()
+            else:
+                raise Exception("Check box for twitter account in account table has not found")
+
+        self.account_table.setColumnCount(7)
+        self.account_table.setHorizontalHeaderLabel(
+            ["Login", "Proxy", "Groups", "Messages", "Retweets", "Status", "Premium"])
+
+        if not self.login:
+            items = self.db.execute(select(User).where(User.app_login == self.login).scalar_one_or_none())
+
+            if items:
+                items = items.twitter_accounts
+
+                for i, d in enumerate(items):
+                    self.account_table.setItem(i, 0, QTableWidgetItem(d.auth.login))
+
+                    self.account_table.setItem(i, 1, QTableWidgetItem(d.proxy.ip))
+
+                    self.account_table.setItem(i, 2, QTableWidgetItem(
+                        len(self.db.execute(select(Group).where(Group.twitter_account_id == d.id)).scalars().all())
+                    ))
+                    self.account_table.item(i, 2).setObjectName(f"table_item_group_{d.id}")
+                    self.account_table.item(i, 2).itemClicked.connect(self.group_show)
+
+                    self.account_table.setItem(i, 3, QTableWidgetItem(d.stats.total_msg_sent_num))
+                    self.account_table.item(i, 3).setObjectName(f"table_item_message_{d.id}")
+                    self.account_table.item(i, 3).itemClicked.connect(self.message_show)
+
+                    self.account_table.setItem(i, 4, QTableWidgetItem(d.stats.total_retweets_num))
+
+                    self.account_table.setItem(i, 5, QTableWidgetItem(d.stats.status))
+
+                    check_box = QCheckBox()
+                    check_box.setChecked(True if d.premium else False)
+                    check_box.stateChanged.connect(set_account_premium)
+                    self.account_table.setItem(i, 6, check_box)
+                    self.account_table.item(i, 6).setObjectName(f"table_item_premium_{d.id}")  # account id
+            else:
+                raise Exception("Unexpected login to load twitter accounts")
+
+    def group_show(self):
+        # Show table of group for certain twitter acc in the info table
+
+        def set_group_enable():
+            sender = self.sender()
+            check_box_id = int(sender.objectName()[24:])
+            group_item = self.db.execute(select(Group).where(Group.id == check_box_id).scalar_one_or_none())
+
+            if group_item:
+                group_item.enabled = sender.isChecked()
+                self.db.commit()
+                # sender.setChecked(not sender.isChecked()) # if it wont be automatic
+            else:
+                raise Exception("Check box for group in info table has not found")
+
+        item_id = int(self.sender().objectName()[17:])  # twitter id
+        groups = self.db.execute(select(Group).where(Group.twitter_account_id == item_id).scalars().all())
+
+        self.info_table.setColumnCount(3)
+        self.info_table.setHorizontalHeaderLabel(["Link", "Retweets", "Enabled"])
+
+        for index, item in enumerate(groups):
+            self.info_table.setItem(index, 0, QTableWidgetItem(item.link))
+
+            self.info_table.setItem(index, 1, QTableWidgetItem(
+                len(self.db.execute(select(Retweet).where(Retweet.group_id == item.id)).scalars().all())
+            ))
+
+            check_box = QCheckBox()
+            check_box.setChecked(True if item.enables else False)
+            check_box.stateChanged.connect(set_group_enable)
+            self.info_table.setItem(index, 2, check_box)
+            self.info_table.item(index, 2).setObjectName(f"table_item_group_enabled_{item.id}")  # group id
+
+    def message_show(self):
+        # Show table of message in the info table
+
+        def set_message_enable():
+            sender = self.sender()
+            check_box_id = int(sender.objectName()[25:])
+            message_item = self.db.execute(select(Attachment).where(Attachment.id == check_box_id).scalar_one_or_none())
+
+            if message_item:
+                message_item.enabled = sender.isChecked()
+                self.db.commit()
+                # sender.setChecked(not sender.isChecked()) # if it wont be automatic
+            else:
+                raise Exception("Check box for group in info table has not found")
+
+        self.info_table.setColumnCount(2)
+        self.info_table.setHorizontalHeaderLabel(["Message", "Enabled"])
+
+        message_items = self.db.execute(select(User).where(User.app_login == self.login).scalar_one_or_none())
+
+        if message_items:
+            message_items = message_items.attachments
+            for index, item in enumerate(message_items):
+                self.info_table.setItem(index, 0, QTableWidgetItem(item.text if item.is_text else item.image_path))
+
+                check_box = QCheckBox()
+                check_box.setChecked(True if item.enables else False)
+                check_box.stateChanged.connect(set_message_enable)
+                self.info_table.setItem(index, 1, check_box)
+                self.info_table.item(index, 1).setObjectName(f"table_item_message_enabled{item.id}")  # message id
+        else:
+            raise Exception("Messages can`t be loaded due to unacceptable login")
 
 
 
@@ -156,13 +278,10 @@ class LoginApp(QWidget):
                 self.info_signal.emit(f"{login}")
                 self.close()
             except Exception as e:
+                self.error_label.setText("Can't connect to the server, check your internet")
                 print(e)
             finally:
-                self.error_label.setText("Can't connect to the server, check your internet")
-
-
-
-
+                print("CUMCUMCUMCUMCUMCUMCUMCUMCUMCUMCUMCUMCUMCUMCUMCUMCUMCUMCUMCUMCUM")
 
 
 if __name__ == "__main__":
@@ -170,5 +289,3 @@ if __name__ == "__main__":
     window = MainApp()
     window.show()
     sys.exit(app.exec_())
-
-
