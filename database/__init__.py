@@ -122,16 +122,19 @@ def create_test_data():
         # Adding Twitter accounts groups
         new_group_1 = Group(
             twitter_account_id = new_twitter_account_1.id,
+            enabled = 1,
             link = "link 1",
             previous_msg_check_num = 5,
             )
         new_group_2 = Group(
             twitter_account_id = new_twitter_account_1.id,
+            enabled = 0,
             link = "link 2",
             previous_msg_check_num = 3,
             )
         new_group_3 = Group(
             twitter_account_id = new_twitter_account_2.id,
+            enabled = 1,
             link = "link 3",
             previous_msg_check_num = 0,
             )
@@ -174,9 +177,7 @@ if __name__ == "__main__":  # DB Tests
     # Testing getting data from the table
     from sqlalchemy import select
     with Session(db_engine) as session:
-        #groups = session.execute(select(Group).where(Group.twitter_account_id == 22)).scalars().all()
-        selected_user = session.execute(select(User).where(User.app_login == "test_login")).scalar_one_or_none()
-        print(selected_user)
+        selected_user = session.execute(select(User).where(User.id == 1)).scalar_one_or_none()
 
         # Printing attachments
         for attachment in selected_user.attachments:

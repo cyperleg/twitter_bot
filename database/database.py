@@ -35,6 +35,7 @@ class Attachment(Base):
     __tablename__ = "attachment"
     id = mapped_column(Integer, primary_key=True, unique=True)
     user_id = mapped_column(Integer, ForeignKey('user.id', ondelete="CASCADE"))
+    enabled = mapped_column(Integer)
     is_text = mapped_column(Integer)
     text = mapped_column(Text)
     attachment_path = mapped_column(Text)
@@ -160,6 +161,7 @@ class Group(Base):
     __tablename__ = "group"
     id = mapped_column(Integer, primary_key=True, unique=True)
     twitter_account_id = mapped_column(Integer, ForeignKey('twitter_account.id'))
+    enabled = mapped_column(Integer)
     link = mapped_column(Text)
     previous_msg_check_num = mapped_column(Integer)
     retweets_done = relationship('Retweet', backref='group', cascade="all, delete", passive_deletes=False)
@@ -167,6 +169,7 @@ class Group(Base):
     def __repr__(self):
         return("-----------------------GROUP------------------------\n"+
               "{0: <30} {1: <30}\n".format("Group id:", self.id)+
+              "{0: <30} {1: <30}\n".format("enabled:", self.enabled)+
               "{0: <30} {1: <30}\n".format("twitter_account_id:", self.twitter_account_id)+
               "{0: <30} {1: <30}\n".format("link:", self.link)+
               "{0: <30} {1: <30}\n".format("previous_msg_check_num:", self.previous_msg_check_num)+
