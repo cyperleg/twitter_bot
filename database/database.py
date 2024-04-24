@@ -82,7 +82,7 @@ class Twitter_account(Base):
     __tablename__ = "twitter_account"
     id = mapped_column(Integer, primary_key=True, unique=True)
     user_id = mapped_column(Integer, ForeignKey('user.id'))
-    is_premium = mapped_column(Integer)
+    premium = mapped_column(Integer)
     stats = relationship('Stats', backref='twitter_account', cascade="all, delete", passive_deletes=False)
     auth = relationship('Auth', backref='twitter_account', cascade="all, delete", passive_deletes=False)
     proxy = relationship('Proxy', backref='twitter_account', cascade="all, delete", passive_deletes=False)
