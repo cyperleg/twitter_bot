@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy_utils import database_exists, create_database
 from sqlalchemy.orm import Session
 from config import DB_LOCATION,DB_NAME
-from database import Base
+from database.database import Base
 
 
 db_engine = create_engine(DB_LOCATION)
@@ -174,6 +174,7 @@ if __name__ == "__main__":  # DB Tests
     # Testing getting data from the table
     from sqlalchemy import select
     with Session(db_engine) as session:
+        #groups = session.execute(select(Group).where(Group.twitter_account_id == 22)).scalars().all()
         selected_user = session.execute(select(User).where(User.app_login == "test_login")).scalar_one_or_none()
         print(selected_user)
 
