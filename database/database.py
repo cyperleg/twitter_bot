@@ -9,9 +9,11 @@ from sqlalchemy.orm import relationship
 class Base(DeclarativeBase):
     pass
 
+
 class User(Base):
     __tablename__ = "user"
     id = mapped_column(Integer, primary_key=True, unique=True)
+    current_user = mapped_column(Integer)
     app_login = mapped_column(Text, unique=True)
     app_password = mapped_column(Text)
     subscription_expire_date = mapped_column(Integer)
