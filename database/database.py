@@ -57,10 +57,15 @@ class Settings(Base):
     id = mapped_column(Integer, primary_key=True, unique=True)
     user_id = mapped_column(Integer, ForeignKey('user.id'))
     max_tweets = mapped_column(Integer)
+    max_tweets_premium = mapped_column(Integer)
     max_retweets = mapped_column(Integer)
+    max_retweets_premium = mapped_column(Integer)
     period_cooldown_minutes = mapped_column(Integer)
-    linke_chance = mapped_column(REAL)
+    period_cooldown_minutes_premium = mapped_column(Integer)
+    like_chance = mapped_column(REAL)
+    like_chance_premium = mapped_column(REAL)
     react_chance = mapped_column(REAL)
+    react_chance_premium = mapped_column(REAL)
     action_delay_seconds = mapped_column(Integer)      # Data got from server
     normal_acc_retweets_cap = mapped_column(Integer)   # Data got from server
     premium_acc_retweets_cap = mapped_column(Integer)  # Data got from server
