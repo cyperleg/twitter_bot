@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>710</width>
+    <height>593</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: #151f2e;
+color: #FFFFFF;
+font: 11pt &quot;Nirmala UI&quot;;
+
+</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <layout class="QVBoxLayout" name="main_Layout">
+     <item>
+      <widget class="QLabel" name="login_label">
+       <property name="text">
+        <string>Login:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="login_edit">
+       <property name="styleSheet">
+        <string notr="true">QLineEdit {
+    border: 1px solid #515f75;
+	border-radius: 6px;
+    padding: 5px;
+	background-color: #252e3d;
+}</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="buttons_layout">
+       <item>
+        <widget class="QCheckBox" name="premium_check">
+         <property name="text">
+          <string>Premium</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="token_check">
+         <property name="text">
+          <string>Password</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">login_button_group</string>
+         </attribute>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="password_check">
+         <property name="text">
+          <string>Auth token</string>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">login_button_group</string>
+         </attribute>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QLabel" name="edit_label">
+       <property name="text">
+        <string>Password:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="edit_edit">
+       <property name="styleSheet">
+        <string notr="true">QLineEdit {
+    border: 1px solid #515f75;
+	border-radius: 6px;
+    padding: 5px;
+	background-color: #252e3d;
+}</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="proxy_label">
+       <property name="text">
+        <string>Proxy:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="proxy_edit">
+       <property name="styleSheet">
+        <string notr="true">QLineEdit {
+    border: 1px solid #515f75;
+	border-radius: 6px;
+    padding: 5px;
+	background-color: #252e3d;
+}</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="port_label">
+       <property name="text">
+        <string>Port:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="port_edit">
+       <property name="styleSheet">
+        <string notr="true">QLineEdit {
+    border: 1px solid #515f75;
+	border-radius: 6px;
+    padding: 5px;
+	background-color: #252e3d;
+}</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="proxy_type_layout">
+       <item>
+        <widget class="QRadioButton" name="socks5_button">
+         <property name="text">
+          <string>HTTPS</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">proxy_type_button_group</string>
+         </attribute>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="http_button">
+         <property name="text">
+          <string>HTTP</string>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">proxy_type_button_group</string>
+         </attribute>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="https_button">
+         <property name="text">
+          <string>SOCKS5</string>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">proxy_type_button_group</string>
+         </attribute>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QPushButton" name="group_button">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton {
+    background-color: #252e3d; 
+    border-radius: 6px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+</string>
+       </property>
+       <property name="text">
+        <string>Add Groups</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="conform_button">
+       <property name="styleSheet">
+        <string notr="true">QPushButton {
+    background-color: #252e3d; 
+    border-radius: 6px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+</string>
+       </property>
+       <property name="text">
+        <string>Confirm</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+ <buttongroups>
+  <buttongroup name="login_button_group"/>
+  <buttongroup name="proxy_type_button_group"/>
+ </buttongroups>
+</ui>
