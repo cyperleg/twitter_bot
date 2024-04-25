@@ -91,9 +91,9 @@ font: 11pt &quot;Nirmala UI&quot;;
       <item>
        <layout class="QVBoxLayout" name="second_layout">
         <item>
-         <layout class="QVBoxLayout" name="message_table_layout">
+         <layout class="QVBoxLayout" name="info_table_layout">
           <item>
-           <widget class="QTableWidget" name="message_table">
+           <widget class="QTableWidget" name="info_table">
             <property name="styleSheet">
              <string notr="true">QTableWidget {
 	border: 3px solid #515f75;
@@ -106,7 +106,7 @@ font: 11pt &quot;Nirmala UI&quot;;
          </layout>
         </item>
         <item>
-         <layout class="QVBoxLayout" name="message_button_layout">
+         <layout class="QVBoxLayout" name="info_button_layout">
           <item>
            <widget class="QPushButton" name="message_button">
             <property name="styleSheet">

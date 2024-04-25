@@ -46,7 +46,7 @@ font: 11pt &quot;Nirmala UI&quot;;
      <item>
       <widget class="QLabel" name="password_label">
        <property name="text">
-        <string>Password</string>
+        <string>Password:</string>
        </property>
       </widget>
      </item>
