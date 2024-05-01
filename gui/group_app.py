@@ -4,10 +4,11 @@ import csv
 
 
 class GroupApp(QWidget):
-    def __init__(self, db):
+    def __init__(self, db, group):
         super().__init__()
         self.init_ui()
         self.db = db
+        self.group = group
 
     def init_ui(self):
         uic.loadUi("groups.ui", self)

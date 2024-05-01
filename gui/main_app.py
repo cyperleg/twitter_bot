@@ -113,7 +113,18 @@ class MainApp(QMainWindow):
 
     def set_settings_to_database(self):
         # Set settings from QLineEdit text to DataBase
-        # TODO: validate data first
+
+        def data_validator(val: str, sender_type: str):
+            match sender_type:
+                case "max_tweets_edit", "my_retweets_edit":
+                    # Tweets and retweets
+                    return val.isdigit() and 0 < int(val) < 200
+                case "cooldown_edit":
+                    # Cooldown
+                    return val.isdigit() and 20 < int(val) < 300
+                case "like_chance_edit", "react_chance_edit":
+                    # Like and react chance
+                    return val.isdigit() and 0 < int(val) < 100
 
         user = self.db.execute(select(User).where(User.current_user == 1).scalar_one_or_none())
         settings = user.settings
@@ -121,32 +132,49 @@ class MainApp(QMainWindow):
         sender_name = sender.objectName()
         sender_text = sender.text()
 
-        match sender_name:
-            case "max_tweets_edit":
-                if self.settings_change_flag:
-                    settings.max_tweets_premium = sender_text
-                else:
-                    settings.max_tweets = sender_text
-            case "my_retweets_edit":
-                if self.settings_change_flag:
-                    settings.max_retweets_premium = sender_text
-                else:
-                    settings.max_retweets = sender_text
-            case "cooldown_edit":
-                if self.settings_change_flag:
-                    settings.period_cooldown_minutes_premium = sender_text
-                else:
-                    settings.period_cooldown_minutes_premium = sender_text
-            case "like_chance_edit":
-                if self.settings_change_flag:
-                    settings.like_chance_premium = sender_text
-                else:
-                    settings.like_chance = sender_text
-            case "react_chance_edit":
-                if self.settings_change_flag:
-                    settings.react_chance_premium = sender_text
-                else:
-                    settings.react_chance = sender_text
+        if data_validator(sender_text, sender_name):
+            sender.setStyleSheet("""
+                                QLineEdit {
+                                    border: 1px solid #515f75;
+                                    border-radius: 6px;
+                                    padding: 5px;
+                                    background-color: #252e3d;
+                                }""")
+            match sender_name:
+                case "max_tweets_edit":
+                    if self.settings_change_flag:
+                        settings.max_tweets_premium = sender_text
+                    else:
+                        settings.max_tweets = sender_text
+                case "my_retweets_edit":
+                    if self.settings_change_flag:
+                        settings.max_retweets_premium = sender_text
+                    else:
+                        settings.max_retweets = sender_text
+                case "cooldown_edit":
+                    if self.settings_change_flag:
+                        settings.period_cooldown_minutes_premium = sender_text
+                    else:
+                        settings.period_cooldown_minutes_premium = sender_text
+                case "like_chance_edit":
+                    if self.settings_change_flag:
+                        settings.like_chance_premium = sender_text
+                    else:
+                        settings.like_chance = sender_text
+                case "react_chance_edit":
+                    if self.settings_change_flag:
+                        settings.react_chance_premium = sender_text
+                    else:
+                        settings.react_chance = sender_text
+        else:
+            sender.setStyleSheet("""
+                                QLineEdit {
+                                    border: 1px solid #515f75;
+                                    border-radius: 6px;
+                                    padding: 5px;
+                                    background-color: #252e3d;
+                                    color: red;
+                                }""")
 
     def change_settings_profile(self):
         # Function for change settings button
