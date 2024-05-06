@@ -321,15 +321,14 @@ class MainApp(QMainWindow):
     def check_user(self, user):
 
         # TODO: change to real response
-        response = requests.get(
-            f"localhost:5000/api/auth?login={user.app_login}&passwd_hash={user.app_password}")
+        response = requests.get(f"localhost:5000/api/auth?login={user.app_login}&passwd_hash={user.app_password}")
 
         if response.ok:
             response = response.json()
             if response.get("exists") == "True":
                 user.subscription_expire_date = int(response.get("will_be_expired_after"))
 
-                if user.subscription_expire_date < 0:
+                if user.subscription_expire_date <= 0:
                     msg_box = QMessageBox()
                     msg_box.setIcon(QMessageBox.Information)
                     msg_box.setText("Your trial was expired")

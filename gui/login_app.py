@@ -26,7 +26,7 @@ class LoginApp(QWidget):
         if not login or not password:
             self.error_label.setText("Incorrect login or password")
         else:
-            # try to get responce from server
+            # try to get response from server
 
             # TODO: change to real response
             response = requests.get(
