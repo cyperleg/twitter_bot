@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QWidget
 import re
 from database.database import Proxy, Twitter_account, Auth, User
 from sqlalchemy import select
-from group_app import GroupApp
+from gui.group_app import GroupApp
 
 
 class AccountApp(QWidget):

@@ -2,10 +2,10 @@ from PyQt5 import uic
 from PyQt5.QtWidgets import QMainWindow, QTableWidgetItem, QCheckBox, QMessageBox
 from sqlalchemy import select
 from database.database import Group, Retweet, Twitter_account, Attachment, User
-from login_app import LoginApp
-from account_app import AccountApp
-from group_app import GroupApp
-from message_app import MessageApp
+from gui.login_app import LoginApp
+from gui.account_app import AccountApp
+from gui.group_app import GroupApp
+from gui.message_app import MessageApp
 import requests
 
 
@@ -14,7 +14,7 @@ class MainApp(QMainWindow):
         super().__init__()
         self.db = session
         self.settings_change_flag: bool = False  # False - default, True - premium
-        # self.login: str = str()  # login name
+        self.login: str = str()  # login name
         self.init_ui()
 
     def init_ui(self):
