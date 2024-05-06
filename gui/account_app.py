@@ -55,7 +55,7 @@ class AccountApp(QWidget):
         self.proxy_type = "SOCKS5"
 
     def group_add_button(self):
-        group_app = GroupApp(self.db, self.groups)
+        group_app = GroupApp(self.db, group=self.groups)
         group_app.exec_()
 
     def on_change_text(self):

@@ -304,7 +304,7 @@ class MainApp(QMainWindow):
         self.set_table()
 
     def add_group(self, twitter_account_id: int):
-        group_app = GroupApp(self.db)
+        group_app = GroupApp(self.db, twitter_id=twitter_account_id)
         group_app.exec_()
         self.group_show(item_id=twitter_account_id)
 

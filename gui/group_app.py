@@ -7,11 +7,12 @@ import csv
 class GroupApp(QWidget):
     TWITTER_START = "https://twitter.com/"
 
-    def __init__(self, db, group: list):
+    def __init__(self, db, group: list = None, twitter_id: int = None):
         super().__init__()
         self.init_ui()
         self.db = db
         self.group = group
+        self.twitter_id = twitter_id
 
     def init_ui(self):
         uic.loadUi("groups.ui", self)
@@ -33,8 +34,13 @@ class GroupApp(QWidget):
             with open(file, 'r', newline='') as csvfile:
                 reader = csv.reader(csvfile, delimiter=',')
 
-                for link in reader:
-                    if link[0].startswith(self.TWITTER_START):
-                        self.group.append(Group(link=link[0]))
+                if self.group:
+                    for link in reader:
+                        if link[0].startswith(self.TWITTER_START):
+                            self.group.append(Group(link=link[0]))
+                elif self.twitter_id:
+                    for link in reader:
+                        if link[0].startswith(self.TWITTER_START):
+                            self.group.append(Group(twitter_account_id=self.twitter_id, link=link[0]))
         else:
             raise Exception("File was not chosen")
