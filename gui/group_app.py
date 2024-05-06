@@ -1,10 +1,13 @@
 from PyQt5 import uic
 from PyQt5.QtWidgets import QWidget, QFileDialog
+from database.database import Group
 import csv
 
 
 class GroupApp(QWidget):
-    def __init__(self, db, group):
+    TWITTER_START = "https://twitter.com/"
+
+    def __init__(self, db, group: list):
         super().__init__()
         self.init_ui()
         self.db = db
@@ -24,16 +27,14 @@ class GroupApp(QWidget):
         file = None
 
         if file_dialog.exec_():
-            file = file_dialog.selectFile()
+            file = file_dialog.selectedFile()
 
         if file:
             with open(file, 'r', newline='') as csvfile:
-                reader = csv.reader(csvfile)
+                reader = csv.reader(csvfile, delimiter=',')
 
-                for row in reader:
-                    # TODO: create data validator
-                    group_link = row[0]
-                    account_number = row[1]
-                    # TODO: commit to db
+                for link in reader:
+                    if link[0].startswith(self.TWITTER_START):
+                        self.group.append(Group(link=link[0]))
         else:
             raise Exception("File was not chosen")

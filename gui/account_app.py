@@ -2,7 +2,7 @@ from PyQt5 import uic
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QWidget
 import re
-from database.database import Group, Proxy, Twitter_account, Auth, User
+from database.database import Proxy, Twitter_account, Auth, User
 from sqlalchemy import select
 from group_app import GroupApp
 
