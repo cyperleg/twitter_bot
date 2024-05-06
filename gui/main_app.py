@@ -1,11 +1,12 @@
 from PyQt5 import uic
-from PyQt5.QtWidgets import QMainWindow, QTableWidgetItem, QCheckBox
+from PyQt5.QtWidgets import QMainWindow, QTableWidgetItem, QCheckBox, QMessageBox
 from sqlalchemy import select
 from database.database import Group, Retweet, Twitter_account, Attachment, User
 from login_app import LoginApp
 from account_app import AccountApp
 from group_app import GroupApp
 from message_app import MessageApp
+import requests
 
 
 class MainApp(QMainWindow):
@@ -31,7 +32,10 @@ class MainApp(QMainWindow):
 
     def set_ui(self):
         user = self.db.execute(select(User).where(User.current_user == 1).scalar_one_or_none())
+
         if user:
+            self.check_user(user)
+
             self.set_info_text(user.app_login, user.subscription_expire_date,
                                len(self.db.execute(select(User).where(User.id == user.id)).scalars().all()))
             self.set_settings_text(user.settings.max_tweets, user.settings.max_retweets,
@@ -312,3 +316,34 @@ class MainApp(QMainWindow):
         message_app = MessageApp(self.db)
         message_app.exec_()
         self.message_show()
+
+    # Section: Server response -------------------------------------------------------
+    def check_user(self, user):
+
+        # TODO: change to real response
+        response = requests.get(
+            f"localhost:5000/api/auth?login={user.app_login}&passwd_hash={user.app_password}")
+
+        if response.ok:
+            response = response.json()
+            if response.get("exists") == "True":
+                user.subscription_expire_date = int(response.get("will_be_expired_after"))
+
+                if user.subscription_expire_date < 0:
+                    msg_box = QMessageBox()
+                    msg_box.setIcon(QMessageBox.Information)
+                    msg_box.setText("Your trial was expired")
+                    msg_box.setWindowTitle("Trial expired")
+                    msg_box.setStandardButtons(QMessageBox.Ok)
+                    msg_box.exec()
+                    self.get_authorise()
+            else:
+                self.get_authorise()
+        else:
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Critical)
+            msg_box.setText("Can't connect to the server, check your internet")
+            msg_box.setWindowTitle("Network error")
+            msg_box.setStandardButtons(QMessageBox.Ok)
+            msg_box.exec()
+            self.exec()
