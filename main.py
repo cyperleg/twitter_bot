@@ -1,3 +1,5 @@
+import sys
+import os
 from PyQt5.QtWidgets import QApplication
 from gui.main_app import MainApp
 from sqlalchemy import create_engine
@@ -9,13 +11,14 @@ Session = Session(create_engine(DB_LOCATION))
 
 
 def start_app():
+    app = QApplication(sys.argv)
     maine_appe = MainApp(Session)
-    app = QApplication(maine_appe)
     maine_appe.show()
     app.exec_()
 
 
 if __name__ == "__main__":
+    os.environ['NO_PROXY'] = 'http://127.0.0.1:5000'
     start_app()
 
 
