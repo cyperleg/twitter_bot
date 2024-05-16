@@ -170,34 +170,34 @@ if __name__ == "__main__":  # DB Tests
     from database import Group
     from database import Retweet
 
-    #database_create()
+    database_create()
 
-    #create_test_data()
-
-    # Testing getting data from the table
-    from sqlalchemy import select
-    with Session(db_engine) as session:
-        selected_user = session.execute(select(User).where(User.id == 1)).scalar_one_or_none()
-
-        # Printing attachments
-        for attachment in selected_user.attachments:
-            print(attachment)
-
-        # Printing settings
-        print(selected_user.settings)
-
-        # Printing Twitter accounts
-        for account in selected_user.twitter_accounts:
-            print(account)
-            # Printing Twitter account statistics
-            print(account.stats)
-            # Printing Twitter account auth
-            print(account.auth)
-            # Printing Twitter account proxy
-            print(account.proxy)
-            # Printing Twitter account groups
-            for group in account.groups:
-                print(group)
-                # Print Twitter group retweets
-                for retweet in group.retweets_done:
-                    print(retweet)
+    # #create_test_data()
+    #
+    # # Testing getting data from the table
+    # from sqlalchemy import select
+    # with Session(db_engine) as session:
+    #     selected_user = session.execute(select(User).where(User.id == 1)).scalar_one_or_none()
+    #
+    #     # Printing attachments
+    #     for attachment in selected_user.attachments:
+    #         print(attachment)
+    #
+    #     # Printing settings
+    #     print(selected_user.settings)
+    #
+    #     # Printing Twitter accounts
+    #     for account in selected_user.twitter_accounts:
+    #         print(account)
+    #         # Printing Twitter account statistics
+    #         print(account.stats)
+    #         # Printing Twitter account auth
+    #         print(account.auth)
+    #         # Printing Twitter account proxy
+    #         print(account.proxy)
+    #         # Printing Twitter account groups
+    #         for group in account.groups:
+    #             print(group)
+    #             # Print Twitter group retweets
+    #             for retweet in group.retweets_done:
+    #                 print(retweet)

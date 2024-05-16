@@ -60,16 +60,19 @@ font: 11pt &quot;Nirmala UI&quot;;
 	border: 3px solid #515f75;
     border-radius: 10px;
 }
-</string>
+QHeaderView::section { 
+	background-color: black;
+	color: white; 
+}</string>
             </property>
            </widget>
           </item>
          </layout>
         </item>
         <item>
-         <layout class="QVBoxLayout" name="accout_button_layout">
+         <layout class="QVBoxLayout" name="account_button_layout">
           <item>
-           <widget class="QPushButton" name="accout_button">
+           <widget class="QPushButton" name="account_button">
             <property name="styleSheet">
              <string notr="true">QPushButton {
     background-color: #252e3d; 
@@ -99,7 +102,10 @@ font: 11pt &quot;Nirmala UI&quot;;
 	border: 3px solid #515f75;
     border-radius: 10px;
 }
-</string>
+QHeaderView::section { 
+	background-color: black;
+	color: white; 
+}</string>
             </property>
            </widget>
           </item>
@@ -108,7 +114,7 @@ font: 11pt &quot;Nirmala UI&quot;;
         <item>
          <layout class="QVBoxLayout" name="info_button_layout">
           <item>
-           <widget class="QPushButton" name="message_button">
+           <widget class="QPushButton" name="info_button">
             <property name="styleSheet">
              <string notr="true">QPushButton {
     background-color: #252e3d; 
@@ -119,7 +125,7 @@ font: 11pt &quot;Nirmala UI&quot;;
 </string>
             </property>
             <property name="text">
-             <string>Add Message</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -185,7 +191,7 @@ font: 11pt &quot;Nirmala UI&quot;;
 }</string>
               </property>
               <property name="inputMask">
-               <string>999</string>
+               <string/>
               </property>
              </widget>
             </item>
@@ -200,7 +206,7 @@ font: 11pt &quot;Nirmala UI&quot;;
 }</string>
               </property>
               <property name="inputMask">
-               <string>999</string>
+               <string/>
               </property>
              </widget>
             </item>
@@ -215,7 +221,7 @@ font: 11pt &quot;Nirmala UI&quot;;
 }</string>
               </property>
               <property name="inputMask">
-               <string>999</string>
+               <string/>
               </property>
              </widget>
             </item>
@@ -244,12 +250,12 @@ font: 11pt &quot;Nirmala UI&quot;;
 }</string>
               </property>
               <property name="inputMask">
-               <string>999</string>
+               <string/>
               </property>
              </widget>
             </item>
             <item row="1" column="0">
-             <widget class="QLineEdit" name="max_retweets_edit">
+             <widget class="QLineEdit" name="max_tweets_edit">
               <property name="styleSheet">
                <string notr="true">QLineEdit {
     border: 1px solid #515f75;
@@ -257,9 +263,6 @@ font: 11pt &quot;Nirmala UI&quot;;
     padding: 5px;
 	background-color: #252e3d;
 }</string>
-              </property>
-              <property name="inputMask">
-               <string>999</string>
               </property>
               <property name="text">
                <string/>
@@ -273,7 +276,7 @@ font: 11pt &quot;Nirmala UI&quot;;
              </widget>
             </item>
             <item row="0" column="0">
-             <widget class="QLabel" name="max_retweets_label">
+             <widget class="QLabel" name="max_tweets_label">
               <property name="text">
                <string>Max tweets:</string>
               </property>
@@ -308,8 +311,7 @@ font: 11pt &quot;Nirmala UI&quot;;
     border-radius: 6px;
 	padding-top: 5px;
 	padding-bottom: 5px;
-}
-</string>
+}</string>
               </property>
               <property name="text">
                <string>Change</string>

@@ -1,5 +1,7 @@
 import sys
 import os
+import traceback
+
 from PyQt5.QtWidgets import QApplication
 from gui.main_app import MainApp
 from sqlalchemy import create_engine
@@ -11,10 +13,13 @@ Session = Session(create_engine(DB_LOCATION))
 
 
 def start_app():
-    app = QApplication(sys.argv)
-    maine_appe = MainApp(Session)
-    maine_appe.show()
-    app.exec_()
+    try:
+        app = QApplication(sys.argv)
+        maine_appe = MainApp(Session)
+        maine_appe.show()
+        app.exec_()
+    except Exception:
+        traceback.print_exc()
 
 
 if __name__ == "__main__":

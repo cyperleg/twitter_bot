@@ -1,11 +1,16 @@
+import sys
+import traceback
+
 from PyQt5 import uic
-from PyQt5.QtWidgets import QMainWindow, QTableWidgetItem, QCheckBox, QMessageBox
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QMainWindow, QTableWidgetItem, QMessageBox
 from sqlalchemy import select
 from database.database import Group, Retweet, Twitter_account, Attachment, User
 from gui.login_app import LoginApp
 from gui.account_app import AccountApp
 from gui.group_app import GroupApp
 from gui.message_app import MessageApp
+from config import SERVER_LINK
 import requests
 
 
@@ -15,6 +20,7 @@ class MainApp(QMainWindow):
         self.db = session
         self.settings_change_flag: bool = False  # False - default, True - premium
         self.login: str = str()  # login name
+        self.table_item_ignore = True
         self.init_ui()
 
     def init_ui(self):
@@ -24,24 +30,36 @@ class MainApp(QMainWindow):
         self.logout_button.clicked.connect(self.get_authorise)
         self.settings_change_button.clicked.connect(self.change_settings_profile)
         self.disable_button.clicked.connect(self.set_program_activity)
+        self.enable_button.clicked.connect(self.set_program_activity)
         self.account_button.clicked.connect(self.add_account)
+
+        self.max_tweets_edit.textChanged.connect(self.set_settings_to_database)
+        self.my_retweets_edit.textChanged.connect(self.set_settings_to_database)
+        self.cooldown_edit.textChanged.connect(self.set_settings_to_database)
+        self.like_chance_edit.textChanged.connect(self.set_settings_to_database)
+        self.react_chance_edit.textChanged.connect(self.set_settings_to_database)
+
+        self.account_table.cellPressed.connect(self.cell_separator)
+        self.account_table.itemChanged.connect(self.set_account_premium)
 
         self.set_ui()
 
     # Section: UI setter ----------------------------------------------------------------
 
     def set_ui(self):
-        user = self.db.execute(select(User).where(User.current_user == 1).scalar_one_or_none())
+        user = self.db.execute(select(User).where(User.current_user == 1)).scalar_one_or_none()
 
         if user:
             self.check_user(user)
 
             self.set_info_text(user.app_login, user.subscription_expire_date,
-                               len(self.db.execute(select(User).where(User.id == user.id)).scalars().all()))
-            self.set_settings_text(user.settings.max_tweets, user.settings.max_retweets,
-                                   user.settings.period_cooldown_minutes, user.settings.like_chance,
-                                   user.settings.react_chance)
+                               len(self.db.execute(
+                                   select(Twitter_account).where(Twitter_account.user_id == user.id)).scalars().all()))
+            self.set_settings_from_database(user.settings[0].max_tweets, user.settings[0].max_retweets,
+                                            user.settings[0].period_cooldown_minutes, user.settings[0].like_chance,
+                                            user.settings[0].react_chance)
             self.set_table()
+            self.set_status_text(True)
         else:
             self.get_authorise()
             self.set_ui()
@@ -66,50 +84,46 @@ class MainApp(QMainWindow):
     def set_table(self):
         # Set table of Twitter accounts to the accounts table
 
-        def set_account_premium():
-            sender = self.sender()
-            check_box_id = int(sender.objectName()[18:])
-            account_item = self.db.execute(
-                select(Twitter_account).where(Twitter_account.id == check_box_id).scalar_one_or_none())
-
-            if account_item:
-                account_item.premium = sender.isChecked()
-                self.db.commit()
-            else:
-                raise Exception("Check box for twitter account in account table has not found")
-
         self.account_table.setColumnCount(7)
-        self.account_table.setHorizontalHeaderLabel(
+        self.account_table.setHorizontalHeaderLabels(
             ["Login", "Proxy", "Groups", "Messages", "Retweets", "Status", "Premium"])
 
-        user = self.db.execute(select(User).where(User.current_user == 1).scalar_one_or_none())
+        user = self.db.execute(select(User).where(User.current_user == 1)).scalar_one_or_none()
 
         if user:
+
             items = user.twitter_accounts
 
+            self.account_table.setRowCount(len(items))
+
             for i, d in enumerate(items):
-                self.account_table.setItem(i, 0, QTableWidgetItem(d.auth.login))
+                # При вызове функции повторно, может быть такое что ячейки привязаны к функциям несколько раз, надо чекнуть
+                self.table_item_ignore = True
+                self.account_table.setItem(i, 0, self.set_item_table(d.auth[0].login))
 
-                self.account_table.setItem(i, 1, QTableWidgetItem(d.proxy.ip))
+                self.account_table.setItem(i, 1, self.set_item_table(d.proxy[0].ip))
 
-                self.account_table.setItem(i, 2, QTableWidgetItem(
-                    len(self.db.execute(select(Group).where(Group.twitter_account_id == d.id)).scalars().all())
-                ))
-                self.account_table.item(i, 2).setObjectName(f"table_item_group_{d.id}")
-                self.account_table.item(i, 2).itemClicked.connect(self.group_show)
+                temp_table_item = QTableWidgetItem(
+                    str(len(self.db.execute(select(Group).where(Group.twitter_account_id == d.id)).scalars().all())))
+                temp_table_item.setData(Qt.UserRole, d.id)
+                temp_table_item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+                temp_table_item.setTextAlignment(Qt.AlignCenter)
+                self.account_table.setItem(i, 2, temp_table_item)
 
-                self.account_table.setItem(i, 3, QTableWidgetItem(d.stats.total_msg_sent_num))
-                self.account_table.item(i, 3).itemClicked.connect(self.message_show)
+                self.account_table.setItem(i, 3, self.set_item_table(str(d.stats[0].total_msg_sent_num)))
 
-                self.account_table.setItem(i, 4, QTableWidgetItem(d.stats.total_retweets_num))
+                self.account_table.setItem(i, 4, self.set_item_table(str(d.stats[0].total_retweets_num)))
 
-                self.account_table.setItem(i, 5, QTableWidgetItem(d.stats.status))
+                self.account_table.setItem(i, 5, self.set_item_table(d.stats[0].status))
 
-                check_box = QCheckBox()
-                check_box.setChecked(True if d.premium else False)
-                check_box.stateChanged.connect(set_account_premium)
-                self.account_table.setItem(i, 6, check_box)
-                self.account_table.item(i, 6).setObjectName(f"table_item_premium_{d.id}")  # account id
+                temp_table_item = QTableWidgetItem()
+                temp_table_item.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
+                temp_table_item.setData(Qt.UserRole, d.id)
+                temp_table_item.setCheckState(Qt.Checked if d.premium else Qt.Unchecked)
+                temp_table_item.setTextAlignment(Qt.AlignCenter)
+                self.account_table.setItem(i, 6, temp_table_item)  # account id
+
+                self.table_item_ignore = False
         else:
             raise Exception("Unauthorised user before setting table")
 
@@ -120,18 +134,18 @@ class MainApp(QMainWindow):
 
         def data_validator(val: str, sender_type: str):
             match sender_type:
-                case "max_tweets_edit", "my_retweets_edit":
+                case "max_tweets_edit" | "my_retweets_edit":
                     # Tweets and retweets
                     return val.isdigit() and 0 < int(val) < 200
                 case "cooldown_edit":
                     # Cooldown
                     return val.isdigit() and 20 < int(val) < 300
-                case "like_chance_edit", "react_chance_edit":
+                case "like_chance_edit" | "react_chance_edit":
                     # Like and react chance
-                    return val.isdigit() and 0 < int(val) < 100
+                    return val.replace(".", "").isdigit() and 0 < float(val) < 100 and val.count(".") < 2
 
-        user = self.db.execute(select(User).where(User.current_user == 1).scalar_one_or_none())
-        settings = user.settings
+        user = self.db.execute(select(User).where(User.current_user == 1)).scalar_one_or_none()
+        settings = user.settings[0]
         sender = self.sender()
         sender_name = sender.objectName()
         sender_text = sender.text()
@@ -143,33 +157,37 @@ class MainApp(QMainWindow):
                                     border-radius: 6px;
                                     padding: 5px;
                                     background-color: #252e3d;
+                                    color: white;
                                 }""")
             match sender_name:
                 case "max_tweets_edit":
                     if self.settings_change_flag:
-                        settings.max_tweets_premium = sender_text
+                        settings.max_tweets_premium = int(sender_text)
                     else:
-                        settings.max_tweets = sender_text
+                        settings.max_tweets = int(sender_text)
                 case "my_retweets_edit":
                     if self.settings_change_flag:
-                        settings.max_retweets_premium = sender_text
+                        settings.max_retweets_premium = int(sender_text)
                     else:
-                        settings.max_retweets = sender_text
+                        settings.max_retweets = int(sender_text)
                 case "cooldown_edit":
                     if self.settings_change_flag:
-                        settings.period_cooldown_minutes_premium = sender_text
+                        settings.period_cooldown_minutes_premium = int(sender_text)
                     else:
-                        settings.period_cooldown_minutes_premium = sender_text
+                        settings.period_cooldown_minutes_premium = int(sender_text)
                 case "like_chance_edit":
                     if self.settings_change_flag:
-                        settings.like_chance_premium = sender_text
+                        settings.like_chance_premium = float(sender_text)
                     else:
-                        settings.like_chance = sender_text
+                        settings.like_chance = float(sender_text)
                 case "react_chance_edit":
                     if self.settings_change_flag:
-                        settings.react_chance_premium = sender_text
+                        settings.react_chance_premium = float(sender_text)
                     else:
-                        settings.react_chance = sender_text
+                        settings.react_chance = float(sender_text)
+
+            self.db.add(settings)
+            self.db.commit()
         else:
             sender.setStyleSheet("""
                                 QLineEdit {
@@ -182,167 +200,245 @@ class MainApp(QMainWindow):
 
     def change_settings_profile(self):
         # Function for change settings button
-        user = self.db.execute(select(User).where(User.current_user == 1).scalar_one_or_none())
-        if user:
-            self.set_settings_to_database()
-            if self.settings_change_flag:
-                self.settings_change_label.setText("Settings: Premium")
-                self.set_settings_text(user.settings.max_tweets_premium, user.settings.max_retweets_premium,
-                                       user.settings.period_cooldown_minutes_premium, user.settings.like_chance_premium,
-                                       user.settings.react_chance_premium)
+        try:
+            user = self.db.execute(select(User).where(User.current_user == 1)).scalar_one_or_none()
+            if user:
+                self.settings_change_flag = not self.settings_change_flag
+                settings = user.settings[0]
+                if self.settings_change_flag:
+                    self.settings_change_label.setText("Settings: Premium")
+                    self.set_settings_from_database(settings.max_tweets_premium, settings.max_retweets_premium,
+                                                    settings.period_cooldown_minutes_premium,
+                                                    settings.like_chance_premium, settings.react_chance_premium)
+                else:
+                    self.settings_change_label.setText("Settings: Normal")
+                    self.set_settings_from_database(settings.max_tweets, settings.max_retweets,
+                                                    settings.period_cooldown_minutes, settings.like_chance,
+                                                    settings.react_chance)
             else:
-                self.settings_change_label.setText("Settings: Normal")
-                self.set_settings_text(user.settings.max_tweets, user.settings.max_retweets,
-                                       user.settings.period_cooldown_minutes, user.settings.like_chance,
-                                       user.settings.react_chance)
-
-            self.settings_change_flag = not self.settings_change_flag
-        else:
-            raise Exception("User unauthorised for change settings")
+                raise Exception("User unauthorised for change settings")
+        except Exception as e:
+            print(e)
 
     def set_status_text(self, flag: bool):
         # Set program status text to left corner label
 
         if flag:
-            self.status_label.setText("Status: Active")
+            self.status_lable.setText("Status: Active")
         else:
-            self.status_label.setText("Status: Disable")
+            self.status_lable.setText("Status: Disable")
 
     def set_program_activity(self):
         # Set enable/disable to all usable elements, if we add more need to change object_list
 
-        sender_flag = self.sender().objectName() == "enable_button"
-        object_list = [self.account_table, self.account_button, self.message_table, self.message_button,
-                       self.logout_button, self.max_tweets_edit, self.my_retweets_edit, self.cooldown_edit,
-                       self.react_chance_edit, self.enable_button if sender_flag else self.disable_button]
+        # TODO: fix this
+        try:
+            sender_flag = self.sender().objectName() == "enable_button"
+            object_list = [self.account_table, self.account_button, self.info_table, self.info_button,
+                           self.logout_button, self.max_tweets_edit, self.my_retweets_edit, self.cooldown_edit,
+                           self.react_chance_edit, self.enable_button if sender_flag else self.disable_button]
 
-        for obj in object_list:
-            obj.setEnabled(sender_flag)
+            for obj in object_list:
+                obj.setEnabled(sender_flag)
 
-        self.set_status_text(sender_flag)
+            self.set_status_text(sender_flag)
+        except Exception as e:
+            print(e)
 
     def get_authorise(self):
         # Get string from login widget
         login_widget = LoginApp(self.db)
-        login_widget.exec_()
+        login_widget.exec()
 
     # Section: Table functions ----------------------------------------------------------------
-    def group_show(self, item_id=-1):
+    def cell_separator(self, row, column):
+        try:
+            match column:
+                case 2:
+                    self.group_show(self.account_table.item(row, column).data(Qt.UserRole))
+                case 3:
+                    self.message_show()
+        except Exception:
+            traceback.print_exc()
+
+    def set_account_premium(self, item_table):
+        if not self.table_item_ignore:
+            account_item = self.db.execute(
+                select(Twitter_account).where(Twitter_account.id == item_table.data(Qt.UserRole))).scalar_one_or_none()
+            print(item_table.data(Qt.UserRole))
+            if account_item:
+                account_item.premium = not account_item.premium
+
+                self.db.add(account_item)
+                self.db.commit()
+            else:
+                raise Exception("premium checkbox was deleted")
+
+    def group_show(self, item_id):
         # Show table of group for certain twitter acc in the info table
 
-        def set_group_enable():
-            sender = self.sender()
-            check_box_id = int(sender.objectName()[24:])
-            group_item = self.db.execute(select(Group).where(Group.id == check_box_id).scalar_one_or_none())
+        try:
+            self.table_item_ignore = True
+            groups = self.db.execute(select(Group).where(Group.twitter_account_id == item_id)).scalars().all()
 
-            if group_item:
-                group_item.enabled = sender.isChecked()
-                self.db.commit()
-                # sender.setChecked(not sender.isChecked()) # if it wont be automatic
-            else:
-                raise Exception("Check box for group in info table has not found")
+            self.info_table.setColumnCount(3)
+            self.info_table.setHorizontalHeaderLabels(["Link", "Retweets", "Enabled"])
+            self.info_table.setRowCount(len(groups))
 
-        item_id = int(self.sender().objectName()[17:]) if item_id == -1 else item_id  # twitter id
-        groups = self.db.execute(select(Group).where(Group.twitter_account_id == item_id).scalars().all())
+            for index, item in enumerate(groups):
+                self.info_table.setItem(index, 0, self.set_item_table(item.link))
 
-        self.info_table.setColumnCount(3)
-        self.info_table.setHorizontalHeaderLabel(["Link", "Retweets", "Enabled"])
+                self.info_table.setItem(index, 1, self.set_item_table(
+                    str(len(self.db.execute(select(Retweet).where(Retweet.group_id == item.id)).scalars().all()))))
 
-        for index, item in enumerate(groups):
-            self.info_table.setItem(index, 0, QTableWidgetItem(item.link))
+                temp_table_item = QTableWidgetItem()
+                temp_table_item.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
+                temp_table_item.setData(Qt.UserRole, item.id)
+                temp_table_item.setCheckState(Qt.Checked if item.enabled else Qt.Unchecked)
+                self.info_table.setItem(index, 2, temp_table_item)
 
-            self.info_table.setItem(index, 1, QTableWidgetItem(
-                len(self.db.execute(select(Retweet).where(Retweet.group_id == item.id)).scalars().all())
-            ))
+            self.info_table.disconnect()
+            self.info_table.itemChanged.connect(self.group_separator)
 
-            check_box = QCheckBox()
-            check_box.setChecked(True if item.enables else False)
-            check_box.stateChanged.connect(set_group_enable)
-            self.info_table.setItem(index, 2, check_box)
-            self.info_table.item(index, 2).setObjectName(f"table_item_group_enabled_{item.id}")  # group id
+            # Set info button to "Add group" and link function
+            self.info_button.setText("Add group")
+            self.info_button.disconnect()
+            self.info_button.clicked.connect(lambda: self.add_group(item_id))
+            self.table_item_ignore = False
+        except Exception as e:
+            print(e)
 
-        # Set info button to "Add group" and link function
-        self.info_button.setText("Add group")
-        self.info_button.clicked.connect(self.add_group(item_id))
+    def group_separator(self, item_table):
+        try:
+            if not self.table_item_ignore:
+                print(item_table.data(Qt.UserRole))
+                group_item = self.db.execute(
+                    select(Group).where(Group.id == item_table.data(Qt.UserRole))).scalar_one_or_none()
+
+                if group_item:
+                    group_item.enabled = not group_item.enabled
+
+                    self.db.add(group_item)
+                    self.db.commit()
+                else:
+                    raise Exception("Check box for group in info table has not found")
+        except Exception as e:
+            print(e)
 
     def message_show(self):
         # Show table of message in the info table
 
-        def set_message_enable():
-            sender = self.sender()
-            check_box_id = int(sender.objectName()[25:])
-            message_item = self.db.execute(select(Attachment).where(Attachment.id == check_box_id).scalar_one_or_none())
+        try:
+            self.table_item_ignore = True
+            self.info_table.setColumnCount(2)
+            self.info_table.setHorizontalHeaderLabels(["Message", "Enabled"])
 
-            if message_item:
-                message_item.enabled = sender.isChecked()
-                self.db.commit()
-                # sender.setChecked(not sender.isChecked()) # if it wont be automatic
+            message_items = self.db.execute(select(User).where(User.current_user == 1)).scalar_one_or_none()
+
+            if message_items:
+                message_items = message_items.attachments
+                self.info_table.setRowCount(len(message_items))
+                for index, item in enumerate(message_items):
+                    self.info_table.setItem(index, 0,
+                                            self.set_item_table(item.text if item.is_text else item.attachment_path))
+
+                    temp_table_item = QTableWidgetItem()
+                    temp_table_item.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
+                    temp_table_item.setData(Qt.UserRole, item.id)
+                    temp_table_item.setCheckState(Qt.Checked if item.enabled else Qt.Unchecked)
+                    self.info_table.setItem(index, 1, temp_table_item)
+
+                self.info_table.disconnect()
+                self.info_table.itemChanged.connect(self.message_separator)
             else:
-                raise Exception("Check box for group in info table has not found")
+                raise Exception("Messages can`t be loaded due to unacceptable login")
 
-        self.info_table.setColumnCount(2)
-        self.info_table.setHorizontalHeaderLabel(["Message", "Enabled"])
+            # Set info_button text to "Add message" and connect function
+            self.info_button.setText("Add message")
+            self.info_button.disconnect()
+            self.info_button.clicked.connect(self.add_message)
+            self.table_item_ignore = False
+        except Exception as e:
+            print(e)
 
-        message_items = self.db.execute(select(User).where(User.app_login == self.login).scalar_one_or_none())
+    def message_separator(self, item_table):
+        try:
+            if not self.table_item_ignore:
+                print(item_table.data(Qt.UserRole))
+                message_item = self.db.execute(
+                    select(Attachment).where(Attachment.id == item_table.data(Qt.UserRole))).scalar_one_or_none()
 
-        if message_items:
-            message_items = message_items.attachments
-            for index, item in enumerate(message_items):
-                self.info_table.setItem(index, 0, QTableWidgetItem(item.text if item.is_text else item.image_path))
+                if message_item:
+                    message_item.enabled = not message_item.enabled
 
-                check_box = QCheckBox()
-                check_box.setChecked(True if item.enables else False)
-                check_box.stateChanged.connect(set_message_enable)
-                self.info_table.setItem(index, 1, check_box)
-                self.info_table.item(index, 1).setObjectName(f"table_item_message_enabled{item.id}")  # message id
-        else:
-            raise Exception("Messages can`t be loaded due to unacceptable login")
-
-        # Set info_button text to "Add message" and connect function
-        self.info_button.setText("Add message")
-        self.info_button.clicked.connect(self.add_message)
+                    self.db.add(message_item)
+                    self.db.commit()
+                else:
+                    raise Exception("Check box for message in info table has not found")
+        except Exception as e:
+            print(e)
 
     def add_account(self):
-        account_app = AccountApp(self.db)
-        account_app.exec_()
-        self.set_table()
+        try:
+            account_app = AccountApp(self.db)
+            account_app.exec_()
+            self.set_table()
+        except Exception as e:
+            print(e)
 
     def add_group(self, twitter_account_id: int):
-        group_app = GroupApp(self.db, twitter_id=twitter_account_id)
-        group_app.exec_()
-        self.group_show(item_id=twitter_account_id)
+        try:
+            group_app = GroupApp(self.db, twitter_id=twitter_account_id)
+            group_app.exec_()
+            self.group_show(item_id=twitter_account_id)
+            self.set_table()
+        except Exception as e:
+            print(e)
 
     def add_message(self):
-        message_app = MessageApp(self.db)
-        message_app.exec_()
-        self.message_show()
+        try:
+            message_app = MessageApp(self.db)
+            message_app.exec_()
+            self.message_show()
+            self.set_table()
+        except Exception as e:
+            print(e)
 
     # Section: Server response -------------------------------------------------------
     def check_user(self, user):
 
         # TODO: change to real response
-        response = requests.get(f"localhost:5000/api/auth?login={user.app_login}&passwd_hash={user.app_password}")
+        try:
+            response = requests.get(f"{SERVER_LINK}/api/auth?login={user.app_login}&passwd_hash={user.app_password}")
+            if response.ok:
+                response = response.json()
+                if response.get("exists"):
+                    user.subscription_expire_date = int(response.get("will_be_expired_after"))
 
-        if response.ok:
-            response = response.json()
-            if response.get("exists") == "True":
-                user.subscription_expire_date = int(response.get("will_be_expired_after"))
-
-                if user.subscription_expire_date <= 0:
-                    msg_box = QMessageBox()
-                    msg_box.setIcon(QMessageBox.Information)
-                    msg_box.setText("Your trial was expired")
-                    msg_box.setWindowTitle("Trial expired")
-                    msg_box.setStandardButtons(QMessageBox.Ok)
-                    msg_box.exec()
+                    if user.subscription_expire_date <= 0:
+                        msg_box = QMessageBox()
+                        msg_box.setIcon(QMessageBox.Information)
+                        msg_box.setText("Your trial was expired")
+                        msg_box.setWindowTitle("Trial expired")
+                        msg_box.setStandardButtons(QMessageBox.Ok)
+                        msg_box.exec()
+                        self.get_authorise()
+                else:
                     self.get_authorise()
-            else:
-                self.get_authorise()
-        else:
+        except Exception as e:
+            print(e)
             msg_box = QMessageBox()
             msg_box.setIcon(QMessageBox.Critical)
             msg_box.setText("Can't connect to the server, check your internet")
             msg_box.setWindowTitle("Network error")
             msg_box.setStandardButtons(QMessageBox.Ok)
             msg_box.exec()
-            self.exec()
+            sys.exit()
+
+    # Sector: Static functions ------------------------------------------------------
+    @staticmethod
+    def set_item_table(var):
+        item_table = QTableWidgetItem(var)
+        item_table.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+        item_table.setTextAlignment(Qt.AlignCenter)
+        return item_table

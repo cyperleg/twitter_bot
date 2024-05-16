@@ -136,7 +136,7 @@ font: 11pt &quot;Nirmala UI&quot;;
      <item>
       <layout class="QHBoxLayout" name="proxy_type_layout">
        <item>
-        <widget class="QRadioButton" name="socks5_button">
+        <widget class="QRadioButton" name="socks5_check">
          <property name="text">
           <string>HTTPS</string>
          </property>
@@ -149,7 +149,7 @@ font: 11pt &quot;Nirmala UI&quot;;
         </widget>
        </item>
        <item>
-        <widget class="QRadioButton" name="http_button">
+        <widget class="QRadioButton" name="http_check">
          <property name="text">
           <string>HTTP</string>
          </property>
@@ -159,7 +159,7 @@ font: 11pt &quot;Nirmala UI&quot;;
         </widget>
        </item>
        <item>
-        <widget class="QRadioButton" name="https_button">
+        <widget class="QRadioButton" name="https_check">
          <property name="text">
           <string>SOCKS5</string>
          </property>
@@ -190,7 +190,7 @@ font: 11pt &quot;Nirmala UI&quot;;
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="conform_button">
+      <widget class="QPushButton" name="confirm_button">
        <property name="styleSheet">
         <string notr="true">QPushButton {
     background-color: #252e3d; 
@@ -212,7 +212,7 @@ font: 11pt &quot;Nirmala UI&quot;;
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="login_button_group"/>
   <buttongroup name="proxy_type_button_group"/>
+  <buttongroup name="login_button_group"/>
  </buttongroups>
 </ui>
