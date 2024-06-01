@@ -69,9 +69,7 @@ try:
     driver.get(url)
 
     # Явные ожидания: ждем, пока элемент с тегом 'body' не станет видимым
-    WebDriverWait(driver, 10).until(
-        EC.visibility_of_element_located((By.TAG_NAME, 'body'))
-    )
+    WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.TAG_NAME, 'body')))
 
     element = driver.find_element(By.CSS_SELECTOR, '[href="/login"]')
     element.click()

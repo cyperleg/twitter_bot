@@ -90,6 +90,7 @@ class Twitter_account(Base):
     id = mapped_column(Integer, primary_key=True, unique=True)
     user_id = mapped_column(Integer, ForeignKey('user.id'))
     premium = mapped_column(Integer)
+    chrome_profile_path = mapped_column(Text)
     stats = relationship('Stats', backref='twitter_account', cascade="all, delete", passive_deletes=False)
     auth = relationship('Auth', backref='twitter_account', cascade="all, delete", passive_deletes=False)
     proxy = relationship('Proxy', backref='twitter_account', cascade="all, delete", passive_deletes=False)
@@ -99,7 +100,7 @@ class Twitter_account(Base):
         return("-------------------TWITTER ACCOUNT------------------\n"+
               "{0: <30} {1: <30}\n".format("Twitter_account id:", self.id)+
               "{0: <30} {1: <30}\n".format("user_id:", self.user_id)+
-              "{0: <30} {1: <30}\n".format("is_premium:", self.is_premium)+
+              "{0: <30} {1: <30}\n".format("is_premium:", self.premium)+
               "{0: <30} {1: <30}\n".format("stats num:", len(self.stats))+
               "{0: <30} {1: <30}\n".format("auth num:", len(self.auth))+
               "{0: <30} {1: <30}\n".format("proxy num:", len(self.proxy))+
