@@ -1,4 +1,3 @@
-from fake_useragent import UserAgent
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from database.database import Twitter_account, Retweet
@@ -6,7 +5,10 @@ import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-
+from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.common.action_chains import ActionChains
+from Automate import Automate
+from Automate import randint
 
 
 class Class:
@@ -15,7 +17,6 @@ class Class:
         self.twitter_account = self.db.session.execute(self.db.select(Twitter_account).filter_by(id=account_id)).scalar_one_or_none()
         self.driver = self.create_driver()
         self.url = "https://x.com"
-
 
     def create_driver(self):
         # create custom driver with unique chrome profile
@@ -26,7 +27,6 @@ class Class:
         chrome_options.add_argument(f"user-data-dir={profile_path}")
         chrome_options.add_experimental_option("excludeSwitches", ['enable-automation'])
         return webdriver.Chrome(options=chrome_options)
-
 
     def auth(self, login="Legendjojo19320", password="Lolka19320") -> None:
         if self.twitter_account.auth.password:
@@ -72,7 +72,6 @@ class Class:
 
         raise Exception("Unknown login method")
 
-
     def get_groups(self) -> list:
         # return -> [group_link1, group_link2, group_link3...]
         try:
@@ -80,9 +79,10 @@ class Class:
 
             WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "[role='main']")))
 
-            main_element = self.driver.find_element(By.CSS_SELECTOR, "[role='main']")
+            main_element = self.driver.find_element(By.CSS_SELECTOR, "[role='region']")
 
-            links_elements = main_element.find_elements(By.CSS_SELECTOR, "a[role='link']")
+            links_elements = main_element.find_elements(By.CSS_SELECTOR,
+                                                        "a[role='link'  data-testid='DM_Conversation_Avatar']")
 
             links = [i.get_attribute('href') for i in links_elements]
 
@@ -95,14 +95,19 @@ class Class:
         return None
 
 
-
     def get_group_users_IDs(self, group_id:int, users_num:int, checked_msg_cap:int=40) -> list:  #except curent user
         # users_num -> Number of user profiles we want to repost from
         # checked_msg_cap -> Number of messages, checked before break. Default = 40
         #
         # return -> [link1, link2, link3...]
-        return
 
+        main_element = self.driver.find_element(By.CSS_SELECTOR, "[data-testid='DmActivityContainer']")
+
+        links_elements = main_element.find_elements(By.CSS_SELECTOR, "a[role='link']")
+
+        links = [self.url + i.get_attribute('href') for i in links_elements]
+
+        return links
 
     def retweet(self, user_id:int) -> None:
         # user_id -> Page, post from which will be reposted
@@ -129,6 +134,31 @@ class Class:
 
             # Retweeting post_IDs[0] in case all tweets was retweeted
             #TODO retweet tweet with id post_IDs[0]
+
+    #SECTION: Automate
+    #-------------------------------------------------------------------------
+    def move_to_element(self, element: WebElement):
+        action = ActionChains(self.driver)
+        action.w3c_actions.pointer_action._duration = randint(200, 400)
+        action.move_to_element(element)
+        action.perform()
+
+        x_i, y_i = Automate.get_curve_points()
+
+        for mouse_x, mouse_y in zip(x_i, y_i):
+            action.move_by_offset(mouse_x, mouse_y)
+            action.perform()
+            print(mouse_x, mouse_y)
+
+    def random_idle(self, main_element):
+        if randint(0, 10) < 3:
+            for i in range(randint(0, 10)):
+                action = ActionChains(self.driver)
+                action.w3c_actions.pointer_action._duration = randint(200, 400)
+                x = randint(0, 20)
+                y = randint(0, 20)
+                action.move_to_element_with_offset(main_element, x, y)
+                action.perform()
 
 
 if __name__ == "main":
